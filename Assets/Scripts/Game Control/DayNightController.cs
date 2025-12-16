@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public class SoundCont : MonoBehaviour
+
+public class DayNightController : MonoBehaviour
 {
-    public float volume;
+    float time;
+
     // Start is called before the first frame update
     void Start()
     {
