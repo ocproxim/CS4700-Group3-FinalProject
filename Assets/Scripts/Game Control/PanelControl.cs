@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Threading;
 
-
 public class PanelControl : MonoBehaviour
 {
     // HUD object - disabled when any menu is opened
@@ -15,6 +14,10 @@ public class PanelControl : MonoBehaviour
     // Pause menu
     public GameObject pauseMenu;
     public static bool gamePaused;
+
+    // Pause sub-menus
+    public GameObject controlsMenu;
+    public GameObject audioMenu;
 
     // Inventory menu
     public GameObject inventoryMenu;
@@ -40,8 +43,10 @@ public class PanelControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Escape key input
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Pause input
+        if (KeyBindController.Instance
+            .IsActionPressed(
+            KeyBindController.GameAction.pause))
         {
             if (gamePaused)
             {
@@ -64,8 +69,10 @@ public class PanelControl : MonoBehaviour
             }
         }
 
-        // I key input
-        if (Input.GetKeyDown(KeyCode.I))
+        // Inventory input
+        if (KeyBindController.Instance
+            .IsActionPressed(
+            KeyBindController.GameAction.inventory))
         {
             if (inventoryOpen)
             {
@@ -81,9 +88,6 @@ public class PanelControl : MonoBehaviour
     // Pauses game, enters Pause menu
     public void PauseGame()
     {
-        // ZA WARUDO
-        Time.timeScale = 0f;
-
         // disable HUD
         HUD.SetActive(false);
 
@@ -94,6 +98,9 @@ public class PanelControl : MonoBehaviour
         // unlock cursor
         Cursor.lockState = CursorLockMode.None;
 
+        // ZA WARUDO
+        Time.timeScale = 0f;
+
         // log
         Debug.Log("Game Paused.");
     }
@@ -101,18 +108,22 @@ public class PanelControl : MonoBehaviour
     // Exits Pause menu, resumes game
     public void ResumeGame()
     {
-        // lock cursor
-        Cursor.lockState = CursorLockMode.Locked;
-
         // disable Pause menu
         pauseMenu.SetActive(false);
         gamePaused = false;
+
+        // disable all Pause sub-menus
+        controlsMenu.SetActive(false);
+        audioMenu.SetActive(false);
 
         // enable HUD
         HUD.SetActive(true);
 
         // Set time in motion
         Time.timeScale = 1f;
+
+        // lock cursor
+        Cursor.lockState = CursorLockMode.Locked;
 
         // log
         Debug.Log("Game Resumed.");
@@ -166,7 +177,7 @@ public class PanelControl : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
 
         // log
-        Debug.Log("Crafting Closed.");
+        Debug.Log("Crafting Opened.");
     }
 
     // Closes Crafting menu
