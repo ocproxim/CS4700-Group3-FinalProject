@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,7 +16,12 @@ public class PlayerMovement : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
+    public float accelerationTime = 0.1f;
+    public float decelerationTime = 0.15f;
+
     Vector3 velocity;
+    Vector3 currentVelocity;
+    Vector3 velocitySmoothing; // Required for SmoothDamp
 
     public bool isGrounded;
 
@@ -22,29 +29,28 @@ public class PlayerMovement : MonoBehaviour
     public float slopeForce = 0f;
     public float maxSlopeAngle = 45f;
 
-    // Track previous timeScale to detect pause/resume transitions
-    public float previousTimeScale = 1f;
-
     void Update()
     {
-        // Detect pause/resume transition and reset velocity
-        if (Time.timeScale > 0f && previousTimeScale == 0f)
+        // STOP FALLING THROUGH THE FLOOR PLEASE
+        if (!Application.isFocused || Time.timeScale == 0f)
         {
-            // Game just resumed - reset downward velocity to prevent phase-through
-            velocity.y = -2f;
-        }
-        previousTimeScale = Time.timeScale;
+            currentVelocity = Vector3.zero;
+            velocitySmoothing = Vector3.zero;
+            velocity.y = 0f;
 
-        // Don't process movement when game is paused
-        if (Time.timeScale == 0f)
-        {
+            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+            if (isGrounded)
+            {
+                controller.Move(new Vector3(0f, 0.2f, 0f));
+            }
+
             return;
         }
 
         // Check if grounded
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        // Apply slope drag to prevent sliding and ensure grounding
+        // Slope drag to prevent sliding and ensure grounding
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -65,9 +71,16 @@ public class PlayerMovement : MonoBehaviour
         if (KeyBindController.Instance.IsActionHeld(KeyBindController.GameAction.moveBackward))
             z -= 1f;
 
-        Vector3 move = transform.right * x + transform.forward * z;
+        // Normalize input to prevent faster diagonal movement
+        Vector3 inputDirection = new Vector3(x, 0f, z).normalized;
+        Vector3 desiredVelocity = (transform.right * inputDirection.x + transform.forward * inputDirection.z) * speed;
 
-        controller.Move(move * speed * Time.deltaTime);
+        // Smoothen acceleration and decceleration
+        float smoothTime = inputDirection.magnitude > 0f ? accelerationTime : decelerationTime;
+        currentVelocity = Vector3.SmoothDamp(currentVelocity, desiredVelocity, ref velocitySmoothing, smoothTime);
+
+        // Apply smoothed horizontal movement
+        controller.Move(currentVelocity * Time.deltaTime);
 
         // Check if the player should jump
         if (KeyBindController.Instance.IsActionPressed(KeyBindController.GameAction.jump) && isGrounded)

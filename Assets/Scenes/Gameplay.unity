@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 39cace2863926444a9a78daa8ae26413, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1591,10 +1591,11 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 64
+  accelerationTime: 0.2
+  decelerationTime: 0.15
   isGrounded: 1
   slopeForce: 0
   maxSlopeAngle: 45
-  previousTimeScale: 1
 --- !u!54 &332470137
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1642,7 +1643,7 @@ MonoBehaviour:
   maxHunger: 100
   thirst: 0
   maxThirst: 100
-  decayFactor: 0
+  decayFactor: 0.25
 --- !u!1 &368190932
 GameObject:
   m_ObjectHideFlags: 0
@@ -2837,11 +2838,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 482013509}
+  - component: {fileID: 482013515}
   - component: {fileID: 482013513}
   - component: {fileID: 482013512}
-  - component: {fileID: 482013511}
-  - component: {fileID: 482013510}
   - component: {fileID: 482013514}
+  - component: {fileID: 482013511}
   m_Layer: 0
   m_Name: GameControl
   m_TagString: Untagged
@@ -2864,18 +2865,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &482013510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 482013508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fc32b7e75622e2408c1a7a99072f5c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &482013511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2924,6 +2913,7 @@ MonoBehaviour:
   currentMinute: 0
   cycleDurationMinutes: 30
   sunLight: {fileID: 705507994}
+  skyboxMaterial: {fileID: 2100000, guid: 39cace2863926444a9a78daa8ae26413, type: 2}
   maxSunIntensity: 1.5
   minSunIntensity: 0.2
   dawnColor: {r: 1, g: 0.7, b: 0.4, a: 1}
@@ -2966,6 +2956,19 @@ MonoBehaviour:
   inventoryResetButton: {fileID: 555564402}
   pauseButton: {fileID: 961365712}
   pauseResetButton: {fileID: 393742002}
+--- !u!114 &482013515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 482013508}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7949ce7cf6859ea4c94c6ae2e37c11b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeScale: 1
 --- !u!1 &486032466
 GameObject:
   m_ObjectHideFlags: 0
@@ -4451,7 +4454,6 @@ GameObject:
   - component: {fileID: 705064299}
   - component: {fileID: 705064305}
   - component: {fileID: 705064306}
-  - component: {fileID: 705064307}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -4549,19 +4551,6 @@ MonoBehaviour:
   staminaBar: {fileID: 486804839}
   hungerBar: {fileID: 1168604984}
   thirstBar: {fileID: 426405367}
---- !u!114 &705064307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 705064295}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7949ce7cf6859ea4c94c6ae2e37c11b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timeScale: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -4572,7 +4561,6 @@ GameObject:
   m_Component:
   - component: {fileID: 705507995}
   - component: {fileID: 705507994}
-  - component: {fileID: 705507996}
   m_Layer: 0
   m_Name: Sunlight
   m_TagString: Untagged
@@ -4657,30 +4645,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &705507996
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 705507993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 037879294b94e00448acbe8948d9aa0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  totalGameMinutes: 0
-  timeOfDay: 0.5
-  currentHour: 12
-  currentMinute: 0
-  cycleDurationMinutes: 30
-  sunLight: {fileID: 0}
-  maxSunIntensity: 1.5
-  minSunIntensity: 0.2
-  dawnColor: {r: 1, g: 0.7, b: 0.4, a: 1}
-  noonColor: {r: 1, g: 1, b: 1, a: 1}
-  duskColor: {r: 1, g: 0.4, b: 0.2, a: 1}
-  nightColor: {r: 0.1, g: 0.1, b: 0.3, a: 1}
 --- !u!1 &709413806
 GameObject:
   m_ObjectHideFlags: 0

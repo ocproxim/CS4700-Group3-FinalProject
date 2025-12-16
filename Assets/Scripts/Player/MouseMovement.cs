@@ -19,7 +19,7 @@ public class MouseMovement : MonoBehaviour
         // Locking the cursor to the middle of the screen and making it invisible
         Cursor.lockState = CursorLockMode.Locked;
 
-        // If references aren't assigned, try to find them automatically
+        // Manually set references
         if (playerBody == null)
         {
             playerBody = transform.parent;
@@ -33,10 +33,16 @@ public class MouseMovement : MonoBehaviour
 
     void Update()
     {
+        // Don't rotate player view when a menu is open
+        if (PanelControl.inventoryOpen || PanelControl.craftingOpen)
+        {
+            return;
+        }
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        // Control rotation around x axis (Look up and down) - CAMERA ONLY
+        // Control Camera-only horizontal rotation
         xRotation -= mouseY;
 
         // Clamp the rotation so we can't over-rotate (like in real life)

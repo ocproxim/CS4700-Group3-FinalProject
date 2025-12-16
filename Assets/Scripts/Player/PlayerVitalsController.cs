@@ -38,19 +38,7 @@ public class PlayerVitalsController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        health = 100f;
-        maxHealth = 100f;
-
-        stamina = 100f;
-        maxStamina = 100f;
-
-        hunger = 100f;
-        maxHunger = 100f;
-
-        thirst = 100f;
-        maxThirst = 100f;
-
-        decayFactor = 0.25f;
+        LoadVitals();
     }
 
     // Update is called once per frame
@@ -67,6 +55,8 @@ public class PlayerVitalsController : MonoBehaviour
             maxStamina = 50;
             changeStamina(-1 * Time.deltaTime * decayFactor * 2);
         }
+
+        SaveVitals();
     }
 
 
@@ -114,5 +104,41 @@ public class PlayerVitalsController : MonoBehaviour
         thirst = Mathf.Max(thirst, 0);
 
         thirst = Mathf.Min(thirst, maxThirst);
+    }
+
+    // Save vitals to player prefs
+    public void SaveVitals()
+    {
+        PlayerPrefs.SetFloat("Player_Health", health);
+        PlayerPrefs.SetFloat("Player_MaxHealth", maxHealth);
+
+        PlayerPrefs.SetFloat("Player_Stamina", stamina);
+        PlayerPrefs.SetFloat("Player_MaxStamina", maxStamina);
+
+        PlayerPrefs.SetFloat("Player_Hunger", hunger);
+        PlayerPrefs.SetFloat("Player_MaxHunger", maxHunger);
+
+        PlayerPrefs.SetFloat("Player_Thirst", thirst);
+        PlayerPrefs.SetFloat("Player_MaxThirst", maxThirst);
+
+        PlayerPrefs.Save();
+    }
+
+    // Load vitals from player prefs
+    private void LoadVitals()
+    {
+        health = PlayerPrefs.GetFloat("Player_Health", 100);
+        maxHealth = PlayerPrefs.GetFloat("Player_MaxHealth", 100);
+
+        stamina = PlayerPrefs.GetFloat("Player_Stamina", 100);
+        maxStamina = PlayerPrefs.GetFloat("Player_MaxStamina", 100);
+
+        hunger = PlayerPrefs.GetFloat("Player_Hunger", 100);
+        maxHunger = PlayerPrefs.GetFloat("Player_MaxHunger", 100);
+
+        thirst = PlayerPrefs.GetFloat("Player_Thirst", 100);
+        maxThirst = PlayerPrefs.GetFloat("Player_MaxThirst", 100);
+
+        Debug.Log("Player vitals loaded.");
     }
 }

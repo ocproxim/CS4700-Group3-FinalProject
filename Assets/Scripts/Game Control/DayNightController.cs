@@ -10,15 +10,13 @@ public class DayNightController : MonoBehaviour
     // Global time of day (0-1; 0 = midnight, 0.5 = noon)
     public float timeOfDay = 0.5f;
 
-    // Current in-game time (0-23)
     public int currentHour = 12;
     public int currentMinute = 0;
 
-    // Cycle duration, in minutes
     public float cycleDurationMinutes = 30f;
 
-    /// Directional light simulating the sun
     public Light sunLight;
+    public Material skyboxMaterial;
 
     // Intensity of the sun at noon
     public float maxSunIntensity = 1.5f;
@@ -60,44 +58,43 @@ public class DayNightController : MonoBehaviour
         }
 
         instance = this;
-        
-        // Find light if not assigned
-        if (sunLight == null)
-        {
-            Light[] allLights = FindObjectsOfType<Light>();
-            foreach (Light light in allLights)
-            {
-                if (light.type == LightType.Directional)
-                {
-                    sunLight = light;
-                    break;
-                }
-            }
-            
-            // If no directional light found, log a warning
-            if (sunLight == null)
-            {
-                Debug.LogWarning("Light gone.");
-            }
-        }
 
-        DontDestroyOnLoad(gameObject);
+        LoadSkyboxMaterial();
 
         // Try to load saved time
         LoadTimeData();
     }
 
+    // Load the skybox material from RenderSettings
+    private void LoadSkyboxMaterial()
+    {
+        skyboxMaterial = RenderSettings.skybox;
+        if (skyboxMaterial == null)
+        {
+            Debug.LogWarning("No skybox found!");
+        }
+    }
+
     void Start()
     {
+        LoadTimeData();
         UpdateSunlight();
     }
 
     void Update()
     {
+        // Log if no sunlight
+        if (sunLight == null)
+        {
+            Debug.Log("No directional light.");
+        }
+
         // Only advance time if game is not paused
         if (Time.timeScale > 0f)
         {
             AdvanceTime();
+
+            SaveTimeData();
         }
     }
 
@@ -113,6 +110,7 @@ public class DayNightController : MonoBehaviour
             totalGameMinutes -= 1440f;
         }
 
+        // Update
         UpdateTimeValues();
         UpdateSunlight();
     }
@@ -135,24 +133,37 @@ public class DayNightController : MonoBehaviour
         float sunRotation = timeOfDay * 360f;
         sunLight.transform.rotation = Quaternion.AngleAxis(sunRotation, Vector3.right);
 
+        // Calculate brightness
+        float brightness = CalculateBrightness(timeOfDay);
+        
         // Sun's intensity
-        float intensity = CalculateSunIntensity(timeOfDay);
-        sunLight.intensity = Mathf.Lerp(minSunIntensity, maxSunIntensity, intensity);
+        sunLight.intensity = Mathf.Lerp(minSunIntensity, maxSunIntensity, brightness);
 
         // Sun's color
         Color sunColor = CalculateSunColor(timeOfDay);
         sunLight.color = sunColor;
+
+        UpdateSkybox(brightness);
     }
 
-    // Calculate sun intensity based on time of day
-    private float CalculateSunIntensity(float time)
+    // Update skybox brightness based on sun brightness
+    private void UpdateSkybox(float brightness)
     {
-        // Create a smooth curve: low at night, peak at noon, low again at night
+        float exposure = Mathf.Lerp(minSunIntensity, maxSunIntensity, brightness);
+        skyboxMaterial.SetFloat("_Exposure", exposure);
+
+        RenderSettings.ambientIntensity = exposure;
+    }
+
+    // Calculate brightness based on time of day
+    private float CalculateBrightness(float time)
+    {
+        // tricknometry
         float sinCurve = Mathf.Sin(time * Mathf.PI);
         return Mathf.Max(0f, sinCurve);
     }
 
-    // Determine sun color based on time of day
+    // Determine light color based on time of day
     private Color CalculateSunColor(float time)
     {
         // Get time of day
@@ -200,43 +211,6 @@ public class DayNightController : MonoBehaviour
     public float GetTotalGameMinutes()
     {
         return totalGameMinutes;
-    }
-
-    // Set the time of day (0-1)
-    public void SetTimeOfDay(float newTime)
-    {
-        timeOfDay = Mathf.Clamp01(newTime);
-        totalGameMinutes = timeOfDay * 1440f;
-        UpdateTimeValues();
-        UpdateSunlight();
-    }
-
-    // Set time to a specific hour and minute
-    public void SetTime(int hour, int minute)
-    {
-        hour = Mathf.Clamp(hour, 0, 23);
-        minute = Mathf.Clamp(minute, 0, 59);
-        totalGameMinutes = (hour * 60f) + minute;
-        UpdateTimeValues();
-        UpdateSunlight();
-    }
-
-    // Advance time by a number of in-game minutes
-    public void AdvanceTimeByMinutes(float minutes)
-    {
-        totalGameMinutes += minutes;
-        if (totalGameMinutes >= 1440f)
-        {
-            totalGameMinutes -= 1440f;
-        }
-        UpdateTimeValues();
-        UpdateSunlight();
-    }
-
-    // Format a time string (HH:MM)
-    public string GetTimeString()
-    {
-        return $"{currentHour:D2}:{currentMinute:D2}";
     }
 
     /// Save time data to PlayerPrefs

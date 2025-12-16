@@ -7,6 +7,8 @@ public class SceneChanger : MonoBehaviour
 {
     public void LoadMainMenuScreen()
     {
+        Cursor.lockState = CursorLockMode.None;
+
         SceneManager.LoadScene("MainMenu");
     }
 

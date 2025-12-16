@@ -57,7 +57,6 @@ public class KeyBindController : MonoBehaviour
         }
 
         instance = this;
-        DontDestroyOnLoad(gameObject);
 
         // Initialize both binding sets
         InitializeDefaultBindings();
